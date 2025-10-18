@@ -1,0 +1,3 @@
+target/           # Esclude artefatti di build
+*.jar            # Esclude binari compilati
+.env             # Esclude configurazioni locali
