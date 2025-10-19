@@ -1,7 +1,7 @@
-package com.example.controller;
+package it.alf.controller;
 
-import com.example.model.Greeting;
-import com.example.service.GreetingService;
+import it.alf.model.Greeting;
+import it.alf.service.GreetingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

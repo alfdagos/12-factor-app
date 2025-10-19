@@ -11,7 +11,7 @@ spring:
 logging:
   level:
     root: INFO
-    com.example: DEBUG
+    it.alf: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
@@ -24,9 +24,9 @@ management:
   endpoint:
     health:
       show-details: always
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 # Application specific config

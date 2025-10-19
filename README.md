@@ -24,9 +24,28 @@ twelve-factor-demo/
 
 **1. File `.gitignore`**
 ```
-target/           # Esclude artefatti di build
-*.jar            # Esclude binari compilati
-.env             # Esclude configurazioni locali
+# Build artifacts
+target/
+*.jar
+*.war
+*.ear
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db           # Esclude configurazioni locali
 ```
 
 **Perché è importante**: 
@@ -949,7 +968,7 @@ curl https://prod.example.com/greeting  # Stessa risposta
 logging:
   level:
     root: INFO
-    com.example: DEBUG
+  it.alf: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"  # ✅ Pattern semplice
 
@@ -1090,7 +1109,7 @@ data:
 {
   "timestamp": "2025-10-18T10:30:45.123Z",
   "level": "INFO",
-  "logger": "com.example.service.GreetingService",
+  "logger": "it.alf.service.GreetingService",
   "message": "Greeting created: Hello, World! (count: 42)",
   "thread": "http-nio-8080-exec-1",
   "context": {

@@ -1,4 +1,4 @@
-package com.example;
+package it.alf;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

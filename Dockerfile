@@ -85,7 +85,7 @@ HEALTHCHECK --interval=30s \
 # USER 1001 è già il default in UBI runtime
 
 # Entrypoint ottimizzato per layered JAR
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -cp /deployments:/deployments/lib/* com.example.Application"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -cp /deployments:/deployments/lib/* it.alf.Application"]
 
 # Alternativa per JAR standard (se usi la copia semplice)
 # ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /deployments/app.jar"]
