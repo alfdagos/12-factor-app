@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
     
-    <groupId>it.alf</groupId>
+    <groupId>it.alf.twelve-factor</groupId>
     <artifactId>twelve-factor-demo</artifactId>
     <version>1.0.0</version>
     <name>12-Factor Demo Application</name>

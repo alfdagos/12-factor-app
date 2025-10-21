@@ -1,7 +1,7 @@
-package it.alf.controller;
+package it.alf.twelve_factor.controller;
 
-import it.alf.model.Greeting;
-import it.alf.service.GreetingService;
+import it.alf.twelve_factor.model.Greeting;
+import it.alf.twelve_factor.service.GreetingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

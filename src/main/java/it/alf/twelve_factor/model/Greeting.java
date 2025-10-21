@@ -1,4 +1,4 @@
-package it.alf.model;
+package it.alf.twelve_factor.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

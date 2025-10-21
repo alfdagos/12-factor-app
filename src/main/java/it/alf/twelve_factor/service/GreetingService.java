@@ -1,6 +1,6 @@
-package it.alf.service;
+package it.alf.twelve_factor.service;
 
-import it.alf.model.Greeting;
+import it.alf.twelve_factor.model.Greeting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

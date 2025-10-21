@@ -1109,7 +1109,7 @@ data:
 {
   "timestamp": "2025-10-18T10:30:45.123Z",
   "level": "INFO",
-  "logger": "it.alf.service.GreetingService",
+  "logger": "service.it.alf.twelve_factor.GreetingService",
   "message": "Greeting created: Hello, World! (count: 42)",
   "thread": "http-nio-8080-exec-1",
   "context": {
