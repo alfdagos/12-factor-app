@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twelve-factor-demo
+  labels:
+    app: twelve-factor-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twelve-factor-demo
+  template:
+    metadata:
+      labels:
+        app: twelve-factor-demo
+    spec:
+      # Optional: set imagePullSecrets if your image is hosted on a private registry
+      # imagePullSecrets:
+      # - name: my-registry-secret
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: twelve-factor-demo
+        # Use a local image name by default so it works in local clusters (minikube/kind)
+        # Replace with your registry image (e.g. myorg/twelve-factor-demo:1.0.0) for production
+        image: twelve-factor-demo:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: twelve-factor-demo-config
+        - secretRef:
+            name: twelve-factor-demo-secret
+        env:
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: twelve-factor-demo-config
+              key: SERVER_PORT
+        - name: GREETING_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: twelve-factor-demo-config
+              key: GREETING_PREFIX
+        - name: APP_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: twelve-factor-demo-config
+              key: APP_VERSION
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: twelve-factor-demo-config
+              key: APP_MESSAGE
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          failureThreshold: 3

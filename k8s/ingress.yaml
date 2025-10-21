@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: twelve-factor-demo-ingress
+  annotations:
+    # Example annotations for nginx-ingress controller; adapt to your controller
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: twelve-factor.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: twelve-factor-demo-service
+            port:
+              number: 80
+  # TLS example (requires TLS secret with certificate):
+  # tls:
+  # - hosts:
+  #   - twelve-factor.local
+  #   secretName: twelve-factor-tls
