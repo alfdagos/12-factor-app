@@ -66,7 +66,7 @@ spec:
     spec:
       containers:
       - name: twelve-factor-demo
-        image: myorg/twelve-factor-demo:1.0.0
+        image: alf/twelve-factor-demo:1.0.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -185,7 +185,7 @@ Oppure con **Ingress**:
 Aggiornamento dell’immagine:
 
 ```bash
-kubectl set image deployment/twelve-factor-demo twelve-factor-demo=myorg/twelve-factor-demo:1.0.1
+kubectl set image deployment/twelve-factor-demo twelve-factor-demo=alf/twelve-factor-demo:1.0.1
 kubectl rollout status deployment/twelve-factor-demo
 ```
 
