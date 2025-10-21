@@ -6,10 +6,8 @@ spec:
   selector:
     app: twelve-factor-demo
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8080
-  type: NodePort
-  # For cloud environments consider using LoadBalancer instead of NodePort:
-  # type: LoadBalancer
+    - name: http
+      protocol: TCP
+      port: 8080        # Porta del servizio
+      targetPort: 8080  # Porta del container
+  type: LoadBalancer  # Cambiato da NodePort
