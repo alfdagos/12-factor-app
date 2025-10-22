@@ -11,7 +11,7 @@ spring:
 logging:
   level:
     root: INFO
-    it.alf: DEBUG
+    it.alf.twelve-factor-demo: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
