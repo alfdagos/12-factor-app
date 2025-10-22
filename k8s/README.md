@@ -1,3 +1,5 @@
+# 🐳 Kubernetes Configuration per Docker Desktop
+
 ## 🧭 Struttura del progetto Kubernetes
 
 ```
@@ -64,29 +66,68 @@ spec:
       labels:
         app: twelve-factor-demo
     spec:
+      # Optional: set imagePullSecrets if your image is hosted on a private registry
+      # imagePullSecrets:
+      # - name: my-registry-secret
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
       containers:
-      - name: twelve-factor-demo
-        image: alf/twelve-factor-demo:1.0.0
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: twelve-factor-demo-config
-        - secretRef:
-            name: twelve-factor-demo-secret
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 15
-          periodSeconds: 20
+        - name: twelve-factor-demo
+          # Use a local image name by default so it works in local clusters (minikube/kind)
+          # Replace with your registry image (e.g. myorg/twelve-factor-demo:1.0.0) for production
+          image: twelve-factor-demo:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: twelve-factor-demo-config
+            - secretRef:
+                name: twelve-factor-demo-secret
+          env:
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: twelve-factor-demo-config
+                  key: SERVER_PORT
+            - name: GREETING_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: twelve-factor-demo-config
+                  key: GREETING_PREFIX
+            - name: APP_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: twelve-factor-demo-config
+                  key: APP_VERSION
+            - name: APP_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: twelve-factor-demo-config
+                  key: APP_MESSAGE
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
 ```
 
 ---
@@ -107,12 +148,12 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8080
-  type: NodePort
+  type: ClusterIP  # Modificato da NodePort per Docker Desktop
 ```
 
 ---
 
-## 🌍 5. Ingress (facoltativo)
+## 🌍 5. Ingress (raccomandato per Docker Desktop)
 
 **k8s/ingress.yaml**
 
@@ -121,6 +162,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: twelve-factor-demo-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
   - host: twelve-factor.local
@@ -140,11 +183,12 @@ spec:
 ## 🧩 6. Comandi di Deploy
 
 ```bash
+# Assicurati che Kubernetes sia abilitato in Docker Desktop
 kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/secret.yaml
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/ingress.yaml   # solo se si usa ingress
+kubectl apply -f k8s/ingress.yaml   # raccomandato per Docker Desktop
 ```
 
 Verifica lo stato:
@@ -153,36 +197,42 @@ Verifica lo stato:
 kubectl get pods
 kubectl get svc
 kubectl get deployments
+kubectl get ingress
 ```
 
 ---
 
-## 🧪 7. Test dell’applicazione
+## 🧪 7. Test dell'applicazione con Docker Desktop
 
-Con **minikube**:
+### Opzione 1: Usando Ingress (raccomandata)
 
-```bash
-minikube service twelve-factor-demo-service
-```
+1. **Abilita Ingress Controller in Docker Desktop:**
+    - Vai su Docker Desktop → Settings → Kubernetes
+    - Seleziona "Enable Ingress Controller"
 
-Oppure con **Ingress**:
-
-1. Aggiungere nel  `/etc/hosts`:
-
+2. **Aggiungi al file `/etc/hosts` (macOS/Linux) o `C:\Windows\System32\drivers\etc\hosts` (Windows):**
    ```
    127.0.0.1 twelve-factor.local
    ```
-2. Apri:
 
+3. **Accedi all'applicazione:**
    ```
    http://twelve-factor.local
    ```
+
+### Opzione 2: Port Forwarding (alternativa)
+
+```bash
+kubectl port-forward service/twelve-factor-demo-service 8080:80
+```
+
+Poi visita: `http://localhost:8080`
 
 ---
 
 ## 🔁 8. Rollout, Scaling e Self-Healing
 
-Aggiornamento dell’immagine:
+Aggiornamento dell'immagine:
 
 ```bash
 kubectl set image deployment/twelve-factor-demo twelve-factor-demo=alf/twelve-factor-demo:1.0.1
@@ -207,7 +257,7 @@ kubectl scale deployment/twelve-factor-demo --replicas=4
 
 ```mermaid
 flowchart LR
-  subgraph "Kubernetes Cluster"
+  subgraph "Docker Desktop Kubernetes"
     subgraph Pod1
       A[Spring Boot Container - twelve-factor-demo]
     end
@@ -223,22 +273,84 @@ flowchart LR
 
 ---
 
-## 🧰 10. Suggerimento: Script di Deploy automatico
+## 🧰 10. Script di Deploy automatico per Docker Desktop
 
-Si può creare un file `deploy.sh` per semplificare l’esecuzione:
+**deploy.sh**
 
 ```bash
 #!/bin/bash
 set -e
 
-echo "🔧 Applying Kubernetes manifests..."
+echo "🔧 Verifico che Docker Desktop Kubernetes sia attivo..."
+kubectl cluster-info
+
+echo "🚀 Applying Kubernetes manifests..."
 kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/secret.yaml
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/ingress.yaml || true
+kubectl apply -f k8s/ingress.yaml
 
-echo "✅ Deployment complete!"
+echo "⏳ Attendo che i pod siano ready..."
+kubectl wait --for=condition=ready pod -l app=twelve-factor-demo --timeout=60s
+
+echo "✅ Deployment completato!"
+echo ""
+echo "📊 Stato del deployment:"
 kubectl get pods -l app=twelve-factor-demo
+echo ""
+echo "🌐 Servizi:"
 kubectl get svc twelve-factor-demo-service
+echo ""
+echo "🔗 Ingress:"
+kubectl get ingress twelve-factor-demo-ingress
+echo ""
+echo "🎯 Per testare l'applicazione:"
+echo "1. Assicurati di avere questa riga in /etc/hosts:"
+echo "   127.0.0.1 twelve-factor.local"
+echo "2. Visita: http://twelve-factor.local"
+```
+
+---
+
+## 🔧 Configurazione aggiuntiva per Docker Desktop
+
+### Verifica dell'ambiente Docker Desktop
+
+```bash
+# Verifica che Kubernetes sia attivo
+kubectl cluster-info
+
+# Verifica i nodi
+kubectl get nodes
+
+# Verifica i namespace
+kubectl get namespaces
+```
+
+### Pulizia delle risorse
+
+```bash
+# Elimina tutte le risorse del progetto
+kubectl delete -f k8s/
+
+# Oppure elimina singolarmente
+kubectl delete deployment twelve-factor-demo
+kubectl delete service twelve-factor-demo-service
+kubectl delete ingress twelve-factor-demo-ingress
+kubectl delete configmap twelve-factor-demo-config
+kubectl delete secret twelve-factor-demo-secret
+```
+
+### Monitoraggio in tempo reale
+
+```bash
+# Monitora i pod
+kubectl get pods -w
+
+# Log in tempo reale
+kubectl logs -f deployment/twelve-factor-demo
+
+# Descrizione dettagliata
+kubectl describe deployment twelve-factor-demo
 ```
