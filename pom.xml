@@ -22,27 +22,40 @@
     </properties>
     
     <dependencies>
+        <!-- FACTOR II: Dependencies - Dipendenze esplicite e gestite -->
+        
+        <!-- Web Framework - FACTOR VII: Port Binding -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         
+        <!-- FACTOR XII: Admin Processes - Actuator per monitoring e admin endpoints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         
+        <!-- FACTOR XII: Admin Processes - Metriche Prometheus -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
             <scope>runtime</scope>
         </dependency>
         
+        <!-- Lombok per codice più pulito -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.36</version>
             <scope>provided</scope>
+        </dependency>
+        
+        <!-- TESTING - Verifica comportamento stateless (Factor VI) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     

@@ -1,36 +1,86 @@
-# Factor III: Config - Configurazione tramite environment variables
+# ========================================
+# 12-FACTOR APP CONFIGURATION
+# ========================================
+# Questo file dimostra il FACTOR III: Config
+# - Configurazione esternalizzata tramite environment variables
+# - Sintassi: ${ENV_VAR:default_value}
+# - Nessun valore sensibile hardcoded
+
+# ========================================
+# FACTOR VII: Port Binding
+# ========================================
 server:
   port: ${SERVER_PORT:8080}
+  # FACTOR IX: Disposability - Graceful shutdown
   shutdown: graceful
-
+  
 spring:
   application:
     name: twelve-factor-demo
+  
+  # FACTOR IX: Lifecycle management
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
-# Factor XI: Logs - Scrive su stdout
+# ========================================
+# FACTOR XI: Logs
+# ========================================
+# Log su stdout/stderr, non su file
+# Kubernetes/Docker raccolgono automaticamente i log
 logging:
   level:
     root: INFO
-    it.alf.twelve-factor-demo: DEBUG
+    it.alf.twelve_factor: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# Factor XII: Admin processes - Gestione amministrativa
+# ========================================
+# FACTOR XII: Admin Processes
+# ========================================
+# Spring Boot Actuator per monitoring e admin tasks
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        # Esponi endpoints per health, metrics, prometheus
+        include: health,info,metrics,prometheus,env
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
-  prometheus:
-    metrics:
-      export:
+      probes:
+        enabled: true  # Enable liveness/readiness probes per K8s
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
         enabled: true
 
-# Application specific config
+# ========================================
+# FACTOR III: Config - Application specific
+# ========================================
 app:
   greeting:
+    # Configurazione esternalizzata - può essere sovrascritto da env vars
     prefix: ${GREETING_PREFIX:Hello}
   version: ${APP_VERSION:1.0.0}
+  
+# ========================================
+# FACTOR IV: Backing Services (Esempio)
+# ========================================
+# Quando si aggiungono database o cache, configurare tramite env vars:
+#
+# spring:
+#   datasource:
+#     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/devdb}
+#     username: ${DB_USERNAME:postgres}
+#     password: ${DB_PASSWORD:secret}
+#   
+#   redis:
+#     host: ${REDIS_HOST:localhost}
+#     port: ${REDIS_PORT:6379}
+#     password: ${REDIS_PASSWORD:}
