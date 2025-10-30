@@ -30,7 +30,7 @@ spring:
 logging:
   level:
     root: INFO
-    it.alf.twelve_factor: DEBUG
+    "[it.alf.twelve_factor]": DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
@@ -55,9 +55,9 @@ management:
       enabled: true
     readinessState:
       enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 # ========================================
